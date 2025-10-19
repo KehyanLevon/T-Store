@@ -87,6 +87,7 @@ export default function Account() {
         removePhoto,
       });
     } catch (err: any) {
+      // TODO: need to remove all any
       setError(err?.message || "Failed to update profile");
     }
   }
