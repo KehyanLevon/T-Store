@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import User from '../models/user';
 import { AuthRequest } from '../middlewares/auth';
+import { validateUpdateMeBody } from '../utils/validators';
 
 function toSafeUserWithPhoto(u: User) {
   const { id, firstName, lastName, email, birthDate, createdAt, updatedAt } = u;
@@ -32,22 +33,15 @@ export async function updateMe(req: AuthRequest, res: Response) {
       photoBase64,
       photoMime,
       removePhoto,
-    } = req.body as {
-      firstName?: string;
-      lastName?: string;
-      birthDate?: string;
-      photoBase64?: string;
-      photoMime?: string;
-      removePhoto?: boolean;
-    };
+    } = validateUpdateMeBody(req.body);
 
     const user = await User.findByPk(userId);
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    if (typeof firstName === 'string') user.firstName = firstName.trim();
-    if (typeof lastName === 'string') user.lastName = lastName.trim();
+    user.firstName = firstName;
+    user.lastName = lastName;
 
-    if (typeof birthDate === 'string') {
+    if (birthDate !== undefined) {
       user.birthDate = birthDate ? (birthDate as unknown as Date) : null;
     }
 
@@ -55,18 +49,17 @@ export async function updateMe(req: AuthRequest, res: Response) {
       user.photo = null;
       user.photoMime = null;
     } else if (photoBase64) {
-      const MAX_BYTES = 5 * 1024 * 1024;
-      const buf = Buffer.from(photoBase64, 'base64');
-      if (buf.byteLength > MAX_BYTES) {
-        return res.status(400).json({ error: 'Photo is too large' });
-      }
-      user.photo = buf;
+      user.photo = Buffer.from(photoBase64, 'base64');
       user.photoMime = photoMime ?? 'application/octet-stream';
     }
+
     await user.save();
 
     return res.json({ user: toSafeUserWithPhoto(user) });
   } catch (e: any) {
+    if (e?.details || /required|invalid|must/i.test(String(e?.message))) {
+      return res.status(400).json({ error: e.message, details: e.details });
+    }
     console.error('[updateMe] error:', e);
     return res.status(500).json({ error: 'Internal server error' });
   }

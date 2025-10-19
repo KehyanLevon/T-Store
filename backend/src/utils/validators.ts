@@ -150,3 +150,88 @@ export function validateChangePasswordByResetBody(body: any): {
     throw new Error('Password must be at least 6 characters');
   return { newPassword };
 }
+
+export function validateUpdateMeBody(body: any): {
+  firstName: string;
+  lastName: string;
+  birthDate?: string;
+  photoBase64?: string;
+  photoMime?: string;
+  removePhoto: boolean;
+} {
+  const errors: string[] = [];
+
+  const pickStr = (v: any) => (typeof v === 'string' ? v.trim() : '');
+
+  const firstName = pickStr(body?.firstName);
+  const lastName = pickStr(body?.lastName);
+
+  if (!firstName) errors.push('First name is required');
+  if (!lastName) errors.push('Last name is required');
+
+  let birthDate: string | undefined = undefined;
+  if (body?.birthDate !== undefined && body?.birthDate !== null) {
+    const d = new Date(String(body.birthDate));
+    if (Number.isNaN(d.getTime())) {
+      errors.push('birthDate must be a valid date (YYYY-MM-DD)');
+    } else {
+      birthDate = d.toISOString().slice(0, 10);
+    }
+  }
+
+  const removePhoto = Boolean(body?.removePhoto);
+
+  let photoBase64: string | undefined = undefined;
+  let photoMime: string | undefined = undefined;
+
+  if (body?.photoBase64 !== undefined && body?.photoBase64 !== null) {
+    const b64 = String(body.photoBase64).trim();
+    const b64Re = /^[A-Za-z0-9+/=\s]+$/;
+    if (!b64) {
+      errors.push('photoBase64 cannot be empty when provided');
+    } else if (!b64Re.test(b64)) {
+      errors.push('photoBase64 must be a valid base64 string');
+    } else {
+      const compact = b64.replace(/\s+/g, '');
+      try {
+        const buf = Buffer.from(compact, 'base64');
+        const MAX_BYTES = 5 * 1024 * 1024;
+        if (buf.byteLength > MAX_BYTES) {
+          errors.push('Photo is too large');
+        } else {
+          photoBase64 = compact;
+        }
+      } catch {
+        errors.push('photoBase64 is not decodable');
+      }
+    }
+  }
+
+  if (body?.photoMime !== undefined && body?.photoMime !== null) {
+    const mime = String(body.photoMime).trim().toLowerCase();
+    if (!mime.startsWith('image/')) {
+      errors.push("photoMime must start with 'image/'");
+    } else {
+      photoMime = mime;
+    }
+  }
+
+  if (removePhoto && photoBase64) {
+    errors.push('Cannot provide both removePhoto and photoBase64');
+  }
+
+  if (errors.length) {
+    const err = new Error(errors[0]);
+    (err as any).details = errors;
+    throw err;
+  }
+
+  return {
+    firstName,
+    lastName,
+    birthDate,
+    photoBase64,
+    photoMime,
+    removePhoto,
+  };
+}

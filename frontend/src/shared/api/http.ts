@@ -48,7 +48,7 @@ async function request<R, B = unknown>(
     err.data = parsed ?? errorText;
     throw err;
   }
-
+  // TODO: try to remove 'ts-expect-error' comments
   if (response.status === 204) {
     // @ts-expect-error
     return undefined;

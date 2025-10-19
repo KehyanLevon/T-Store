@@ -92,3 +92,5 @@ npm run dev
    /registration - Sign up
    /forgot-password - Forgot password
    /reset-password?token=eyJhbGci... - Reset password
+
+//TODO: What about docker or deploy the project?
