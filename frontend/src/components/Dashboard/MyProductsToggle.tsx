@@ -1,4 +1,4 @@
-interface MyProductsToggleProps {
+export interface MyProductsToggleProps {
   enabled: boolean;
   onToggle: () => void;
   visible?: boolean;

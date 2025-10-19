@@ -63,7 +63,7 @@ export default function Registration() {
         photoBase64,
         photoMime,
       });
-      navigate("/login");
+      navigate("/products");
     } catch (err: any) {
       setError(err.message || "Registration failed");
     }

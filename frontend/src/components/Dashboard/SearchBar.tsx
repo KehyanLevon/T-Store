@@ -1,4 +1,4 @@
-interface SearchBarProps {
+export interface SearchBarProps {
   value: string;
   onChange: (next: string) => void;
 }

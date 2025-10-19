@@ -38,6 +38,7 @@ The project is divided into two parts: **frontend** and **backend**.
 - Pure CSS
 - Custom Hooks
 - Reusable API handler
+- Custom StoryBook
 
 ### Backend
 
@@ -81,7 +82,11 @@ npm run dev
 cd ../frontend
 npm run dev
 
-5. All routes(pages)
+# Story book
+
+npm run storybook
+
+5. All pages
    / - Home
    /products - Store
    /products/new - Add product
