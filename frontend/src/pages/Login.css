@@ -1,0 +1,85 @@
+.field {
+  margin-bottom: 1.5rem;
+}
+.label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--slate-700);
+  margin-bottom: 0.5rem;
+}
+
+.input {
+  width: 90%;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--slate-300);
+  border-radius: var(--radius-lg);
+  background: var(--bg-light);
+  color: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+.input::placeholder {
+  color: #94a3b8;
+}
+.input:focus {
+  outline: none;
+  border-color: transparent;
+}
+
+.forgot {
+  text-align: left;
+  margin-top: 0.5rem;
+}
+.forgot a {
+  font-size: 0.875rem;
+  color: var(--primary);
+  text-decoration: none;
+}
+.forgot a:hover {
+  text-decoration: underline;
+}
+
+.submit {
+  width: 100%;
+  padding: 0.8rem 0 0.8rem 0;
+}
+
+.card__divider {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--slate-200);
+  text-align: center;
+}
+
+.muted {
+  color: var(--slate-600);
+}
+
+.main {
+  flex: 1 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.section {
+  padding-block: 4rem;
+}
+.card {
+  max-width: 28rem;
+  margin-inline: auto;
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  padding: 2rem;
+  box-shadow: var(--shadow-md);
+  text-align: left;
+}
+
+.card__title {
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+  font-weight: 700;
+  text-align: center;
+  margin: 0 0 1.5rem;
+  color: var(--slate-900);
+}

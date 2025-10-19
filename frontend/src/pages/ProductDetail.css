@@ -1,0 +1,125 @@
+.pd {
+  max-width: 1100px;
+  margin-inline: auto;
+  text-align: left;
+}
+
+.pd__grid {
+  display: grid;
+  gap: 1.25rem;
+}
+@media (min-width: 900px) {
+  .pd__grid {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+}
+
+.pd__media {
+  background: var(--white);
+  border-radius: 0.75rem;
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+.pd__media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+.pd__placeholder {
+  min-height: 380px;
+  display: grid;
+  place-items: center;
+  gap: 0.25rem;
+  color: var(--slate-500);
+}
+.pd__icon {
+  font-size: 2rem;
+}
+
+.pd__info {
+  padding-inline: 0.25rem;
+}
+
+.pd__breadcrumbs {
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+  color: var(--slate-500);
+}
+.pd__breadcrumbs a:hover {
+  text-decoration: underline;
+}
+
+.pd__title {
+  margin: 0 0 0.75rem;
+  font-size: 2rem;
+  line-height: 1.2;
+  color: var(--slate-900);
+}
+
+.pd__price {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.pd__price-current {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--primary);
+}
+.pd__price-old {
+  color: var(--slate-400);
+  text-decoration: line-through;
+  font-weight: 700;
+}
+
+.pd__section {
+  margin: 1rem 0;
+}
+.pd__section-title {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+}
+.pd__desc {
+  margin: 0;
+  color: var(--slate-700);
+  line-height: 1.7;
+}
+
+.pd__actions {
+  margin-top: 1.25rem;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* skeleton while loading */
+.pd__loading {
+  max-width: 1100px;
+  margin-inline: auto;
+}
+.pd__skeleton {
+  background: linear-gradient(90deg, #eee 25%, #f6f7f8 37%, #eee 63%);
+  background-size: 400% 100%;
+  animation: pdShimmer 1.4s ease infinite;
+  border-radius: 0.5rem;
+}
+.pd__skeleton--img {
+  height: 280px;
+}
+.pd__skeleton--text {
+  height: 18px;
+  margin-top: 10px;
+  width: 70%;
+}
+
+@keyframes pdShimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
+}
