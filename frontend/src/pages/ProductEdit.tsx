@@ -83,7 +83,7 @@ export default function ProductEdit() {
           existingPhotoMime: product.photoMime,
         }}
         pending={updating}
-        onCancel={() => navigate(-1)}
+        onCancel={() => navigate(-1)} // TODO: not the best solution(but not critical)
         onSubmit={handleSubmit}
       />
     </div>

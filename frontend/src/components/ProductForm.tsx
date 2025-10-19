@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { InputField } from "../shared/ui/InputField";
 import "../pages/ProductCreate.css";
+import fileToBase64 from "../shared/utils/fileToBase64";
 
 export type ProductFormValues = {
   name: string;
@@ -40,25 +41,6 @@ export function ProductForm(props: {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) {
     setForm((s) => ({ ...s, [e.target.name]: e.target.value }));
-  }
-
-  async function fileToBase64(
-    file: File
-  ): Promise<{ base64: string; mime: string }> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const result = String(reader.result || "");
-        const [prefix, base64] = result.split(",", 2);
-        const mime =
-          prefix.match(/^data:(.*?);base64$/)?.[1] ||
-          file.type ||
-          "application/octet-stream";
-        resolve({ base64, mime });
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
   }
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {

@@ -7,6 +7,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { LikeButton } from "../shared/ui/LikeButton";
 import "./Dashboard.css";
 
+// TODO: Component is too huge
 export default function Dashboard() {
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -145,6 +146,9 @@ export default function Dashboard() {
               ? `data:${p.photoMime};base64,${p.photo}`
               : undefined;
 
+          {
+            /* TODO: How about to create and move to components/Dashboard/ProductCard.tsx ? */
+          }
           return (
             <Link
               to={`/products/${p.id}`}
@@ -219,6 +223,7 @@ export default function Dashboard() {
         })}
       </div>
 
+      {/* TODO: How about to create and move to components/Dashboard/Paginator.tsx ? */}
       {totalPages > 1 && (
         <nav
           className="pagination"

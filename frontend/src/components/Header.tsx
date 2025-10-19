@@ -25,7 +25,7 @@ export default function Header() {
     <header className="site-header">
       <nav className="nav container">
         <div className="left-side">
-          <Link to="/">
+          <Link to="/products">
             <div className="brand">
               <div className="brand__logo" aria-hidden="true">
                 <svg

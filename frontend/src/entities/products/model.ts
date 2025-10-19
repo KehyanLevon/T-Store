@@ -7,6 +7,7 @@ import type {
 } from "../../shared/api/types";
 
 // ---- Effects
+// TODO: How about storing effects separately?
 export const createProductFx = createEffect(
   async (body: {
     name: string;
@@ -69,7 +70,7 @@ export const updateProductFx = createEffect(
 // ---- Stores
 export const $productsList = createStore<ProductListResponse>({
   items: [],
-  total: 0,
+  total: 0, //TODO: Create and move to constants.ts
   page: 1,
   limit: 12,
   pages: 1,

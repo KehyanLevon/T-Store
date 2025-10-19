@@ -5,25 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { registerFx } from "../entities/auth/model";
 import { InputField } from "../shared/ui/InputField";
 import "./Registration.css";
-
-async function fileToBase64(
-  file: File
-): Promise<{ base64: string; mime: string }> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = String(reader.result || "");
-      const [prefix, base64] = result.split(",", 2);
-      const mime =
-        prefix.match(/^data:(.*?);base64$/)?.[1] ||
-        file.type ||
-        "application/octet-stream";
-      resolve({ base64, mime });
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
+import fileToBase64 from "../shared/utils/fileToBase64";
 
 export default function Registration() {
   const [register, registerPending] = useUnit([registerFx, registerFx.pending]);
@@ -161,7 +143,7 @@ export default function Registration() {
             />
           )}
         </div>
-
+        {/* TODO: How about making validation more interactive? See example in dealer desk reset password form*/}
         {error && <p className="error">{error}</p>}
 
         <button
