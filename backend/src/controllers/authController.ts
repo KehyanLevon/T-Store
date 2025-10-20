@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getMe, loginUser, registerUser } from '../services/authService';
+import { getUserById, loginUser, registerUser } from '../services/authService';
 import { AuthRequest } from '../middlewares/auth';
 import { validateAndBuildRegisterPayload } from '../utils/validators';
 
@@ -38,7 +38,7 @@ export function logout(_req: Request, res: Response) {
 
 export async function me(req: AuthRequest, res: Response) {
   try {
-    const user = await getMe(req.userId!);
+    const user = await getUserById(req.userId!);
     res.json({ user });
   } catch (e: any) {
     res.status(404).json({ error: e.message });

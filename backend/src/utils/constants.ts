@@ -1,0 +1,2 @@
+export const PROFILE_PHOTO_MAX_SIZE_MB = 5;
+export const PRODUCT_PHOTO_MAX_SIZE_MB = 10;

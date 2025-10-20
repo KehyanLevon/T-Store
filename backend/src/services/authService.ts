@@ -5,6 +5,9 @@ import User from '../models/user';
 const JWT_SECRET: Secret = process.env.JWT_SECRET as Secret;
 const JWT_EXPIRES_IN: SignOptions['expiresIn'] = process.env
   .JWT_EXPIRES_IN as SignOptions['expiresIn'];
+const SALT_ROUNDS = Number.isFinite(Number(process.env.PASSWORD_SALT))
+  ? Number(process.env.PASSWORD_SALT)
+  : 10;
 
 export async function registerUser(params: {
   firstName: string;
@@ -18,7 +21,7 @@ export async function registerUser(params: {
   const existing = await User.findOne({ where: { email: params.email } });
   if (existing) throw new Error('Email already in use');
 
-  const passwordHash = await bcrypt.hash(params.password, 10);
+  const passwordHash = await bcrypt.hash(params.password, SALT_ROUNDS);
 
   let photo: Buffer | null = null;
   if (params.photoBase64) {
@@ -54,7 +57,7 @@ export async function loginUser(params: { email: string; password: string }) {
   return { token, user: safeUser(user) };
 }
 
-export async function getMe(userId: string) {
+export async function getUserById(userId: string) {
   const user = await User.findByPk(userId);
   if (!user) throw new Error('User not found');
   return safeUser(user);

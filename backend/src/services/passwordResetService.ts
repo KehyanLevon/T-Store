@@ -9,8 +9,15 @@ const RESET_JWT_SECRET: Secret = (process.env.RESET_JWT_SECRET ||
 const RESET_TOKEN_TTL_MINUTES = Number(
   process.env.RESET_TOKEN_TTL_MINUTES || 30,
 );
+
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
-const mail = process.env.SMTP_USER;
+
+const SALT_ROUNDS = Number.isFinite(Number(process.env.PASSWORD_SALT))
+  ? Number(process.env.PASSWORD_SALT)
+  : 10;
+
+const mailFrom = process.env.SMTP_USER;
+
 type ResetPayload = {
   sub: string;
   typ: 'pwd_reset';
@@ -21,7 +28,6 @@ type ResetPayload = {
 
 export async function sendForgotPasswordEmail(email: string) {
   const user = await User.findOne({ where: { email } });
-
   if (!user) return;
 
   const payload: ResetPayload = {
@@ -33,13 +39,23 @@ export async function sendForgotPasswordEmail(email: string) {
   const token = jwt.sign(payload, RESET_JWT_SECRET, {
     expiresIn: `${RESET_TOKEN_TTL_MINUTES}m`,
   });
+
   const resetLink = `${FRONTEND_URL}/reset-password?token=${encodeURIComponent(token)}`;
 
   await transporter.sendMail({
-    from: mail,
+    from: mailFrom,
     to: user.email,
     subject: 'Password reset',
-    html: `Hi ${user.firstName},\n\nUse this link to reset your password:\n${resetLink}\n\nThis link expires in ${RESET_TOKEN_TTL_MINUTES} minutes.`,
+    text: `Hi ${user.firstName},
+
+Use this link to reset your password:
+${resetLink}
+
+This link expires in ${RESET_TOKEN_TTL_MINUTES} minutes.`,
+    html: `<p>Hi ${escapeHtml(user.firstName)},</p>
+<p>Use this link to reset your password:</p>
+<p><a href="${resetLink}">${resetLink}</a></p>
+<p>This link expires in ${RESET_TOKEN_TTL_MINUTES} minutes.</p>`,
   });
 }
 
@@ -80,6 +96,31 @@ export async function changePasswordWithResetToken(
   const user = await User.findByPk(userId);
   if (!user) throw new Error('User not found');
 
-  user.passwordHash = await bcrypt.hash(newPassword, 10);
+  const sameAsOld = await bcrypt.compare(newPassword, user.passwordHash);
+  if (sameAsOld) {
+    throw new Error('New password must be different from current password');
+  }
+
+  const hashed = await bcrypt.hash(newPassword, SALT_ROUNDS);
+  user.passwordHash = hashed;
   await user.save();
+}
+
+function escapeHtml(s: string) {
+  return String(s).replace(/[&<>"']/g, (ch) => {
+    switch (ch) {
+      case '&':
+        return '&amp;';
+      case '<':
+        return '&lt;';
+      case '>':
+        return '&gt;';
+      case '"':
+        return '&quot;';
+      case "'":
+        return '&#39;';
+      default:
+        return ch;
+    }
+  });
 }

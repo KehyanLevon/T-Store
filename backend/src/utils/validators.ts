@@ -1,4 +1,8 @@
 import type { CreateParams } from '../services/productService';
+import {
+  PRODUCT_PHOTO_MAX_SIZE_MB,
+  PROFILE_PHOTO_MAX_SIZE_MB,
+} from './constants';
 
 export function validateAndBuildRegisterPayload(body: any) {
   const errors: string[] = [];
@@ -102,15 +106,26 @@ export function validateCreateProductBody(
     typeof body.description === 'string' ? body.description : null;
 
   const photoBase64 =
-    typeof body.photoBase64 === 'string' ? body.photoBase64 : null;
+    typeof body.photoBase64 === 'string' ? body.photoBase64.trim() : null;
 
   let photoMime: string | null = null;
   if (body.photoMime !== undefined && body.photoMime !== null) {
-    const mime = String(body.photoMime);
+    const mime = String(body.photoMime).trim().toLowerCase();
     if (!mime.startsWith('image/')) {
       errors.push('photoMime must start with "image/"');
     } else {
       photoMime = mime;
+    }
+  }
+  if (photoBase64) {
+    try {
+      const buffer = Buffer.from(photoBase64, 'base64');
+      const MAX_SIZE_BYTES = PRODUCT_PHOTO_MAX_SIZE_MB * 1024 * 1024;
+      if (buffer.byteLength > MAX_SIZE_BYTES) {
+        errors.push('Photo is too large (max 10MB)');
+      }
+    } catch {
+      errors.push('photoBase64 is not a valid base64 string');
     }
   }
 
@@ -195,7 +210,7 @@ export function validateUpdateMeBody(body: any): {
       const compact = b64.replace(/\s+/g, '');
       try {
         const buf = Buffer.from(compact, 'base64');
-        const MAX_BYTES = 5 * 1024 * 1024;
+        const MAX_BYTES = PROFILE_PHOTO_MAX_SIZE_MB * 1024 * 1024;
         if (buf.byteLength > MAX_BYTES) {
           errors.push('Photo is too large');
         } else {
@@ -234,4 +249,25 @@ export function validateUpdateMeBody(body: any): {
     photoMime,
     removePhoto,
   };
+}
+
+export function validateChangeMyPasswordBody(body: any): {
+  newPassword: string;
+} {
+  const errors: string[] = [];
+  const pickStr = (v: any) => (typeof v === 'string' ? v.trim() : '');
+
+  const newPassword = pickStr(body?.newPassword);
+
+  if (!newPassword) errors.push('New password is required');
+  else if (newPassword.length < 6)
+    errors.push('New password must be at least 6 characters');
+
+  if (errors.length) {
+    const err = new Error(errors[0]);
+    (err as any).details = errors;
+    throw err;
+  }
+
+  return { newPassword };
 }

@@ -18,12 +18,27 @@ app.use(
   }),
 );
 
-app.use(express.json({ limit: '5mb' }));
+app.use(express.json({ limit: '15mb' }));
 app.use(cookieParser());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/likes', likeRoutes);
+
+app.use(
+  (
+    err: any,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    if (err.type === 'entity.too.large') {
+      return res.status(413).json({ error: 'Request Entity Too Large' });
+    }
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  },
+);
 
 export default app;

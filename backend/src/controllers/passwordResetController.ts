@@ -22,11 +22,11 @@ export async function forgotPassword(req: Request, res: Response) {
   try {
     const { email } = validateForgotPasswordBody(req.body);
     await sendForgotPasswordEmail(email);
-    return res.json({
+    return res.status(200).json({
       message: 'If that email exists, a reset link has been sent.',
     });
   } catch (e: any) {
-    return res.status(400).json({ error: e.message });
+    return res.status(400).json({ error: e.message, details: e?.details });
   }
 }
 
@@ -41,9 +41,10 @@ export async function verifyResetToken(req: Request, res: Response) {
       Number(process.env.RESET_TOKEN_TTL_MINUTES || 30) * 60 * 1000;
     res.cookie('reset_token', token, { ...cookieBase, maxAge: maxAgeMs });
 
-    return res.json({ message: 'Token accepted' });
+    return res.status(200).json({ message: 'Token accepted' });
   } catch (e: any) {
-    if (e?.code === 'EXPIRED' || /expired/i.test(String(e?.message))) {
+    const msg = String(e?.message || '');
+    if (e?.code === 'EXPIRED' || /expired/i.test(msg)) {
       return res.status(410).json({ error: 'Token expired' });
     }
     return res.status(400).json({ error: 'Invalid token' });
@@ -55,8 +56,9 @@ export async function changePassword(req: Request, res: Response) {
     const { newPassword } = validateChangePasswordByResetBody(req.body);
 
     const cookieToken = (req as any).cookies?.reset_token as string | undefined;
-    if (!cookieToken)
+    if (!cookieToken) {
       return res.status(401).json({ error: 'Missing or invalid reset token' });
+    }
 
     const payload = verifyRawResetTokenOrThrow(cookieToken);
     const user = await validateResetTokenAgainstUserOrThrow(payload);
@@ -65,18 +67,23 @@ export async function changePassword(req: Request, res: Response) {
 
     res.clearCookie('reset_token', cookieBase);
 
-    return res.json({ message: 'Password changed' });
+    return res.status(200).json({ message: 'Password changed' });
   } catch (e: any) {
-    if (e?.code === 'EXPIRED' || /expired/i.test(String(e?.message))) {
+    const msg = String(e?.message || '');
+    if (e?.code === 'EXPIRED' || /expired/i.test(msg)) {
       res.clearCookie('reset_token', cookieBase);
       return res.status(410).json({ error: 'Token expired' });
     }
-    return res
-      .status(/missing|invalid/i.test(String(e?.message)) ? 401 : 400)
-      .json({
-        error: /token/i.test(String(e?.message))
-          ? 'Invalid token'
-          : String(e?.message || 'Bad request'),
-      });
+
+    if (/token/i.test(msg)) {
+      res.clearCookie('reset_token', cookieBase);
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+
+    if (/different from current password/i.test(msg)) {
+      return res.status(400).json({ error: msg });
+    }
+
+    return res.status(400).json({ error: msg, details: (e as any)?.details });
   }
 }
