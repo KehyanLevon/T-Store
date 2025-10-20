@@ -30,7 +30,15 @@ export function validateAndBuildRegisterPayload(body: any) {
     if (Number.isNaN(d.getTime())) {
       errors.push('birthDate must be a valid date (YYYY-MM-DD)');
     } else {
-      birthDate = d.toISOString().slice(0, 10);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      d.setHours(0, 0, 0, 0);
+
+      if (d > today) {
+        errors.push('birthDate cannot be in the future');
+      } else {
+        birthDate = d.toISOString().slice(0, 10);
+      }
     }
   }
 
