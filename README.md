@@ -47,55 +47,67 @@ The project is divided into two parts: **frontend** and **backend**.
 - JWT Authentication
 - Nodemailer (email reset link)
 - TypeScript
+- Docker Compose
 
 ---
 
-### 1) Install dependencies
+## 🧰 Setup & Run
 
-```bash
-cd backend
-npm install
+A) Using Docker (recommended)
 
-cd ../frontend
-npm install
+1. Create .env files
+   cp backend/.env_example backend/.env
+   cp frontend/.env_example frontend/.env
 
-2) Create .env files
+2. Start all services
+   docker compose up --build
 
-You can copy the contents from .env_example and fill in your PostgreSQL and email credentials(you can use env_example email credentials).
+3. Open
+   Frontend: http://localhost:5173
+   Backend: http://localhost:3000
+   Storybook: http://localhost:6006
 
-3) Create PostgreSQL database
-CREATE DATABASE t-store;
+B) Run locally (without Docker)
+
+1. Install dependencies
+   cd backend && npm install
+   cd ../frontend && npm install
+
+2. Create .env files
+   cp backend/.env_example backend/.env
+   cp frontend/.env_example frontend/.env
+
+3. Create database & run migrations
+   CREATE DATABASE t-store;
 
 cd backend
 npm run db:migrate
-```
 
-4. Run backend and frontend
+4. Run apps
 
 # Backend
 
 cd backend
 npm run dev
 
-# Frontend
+# Frontend (another cmd)
 
-cd ../frontend
+cd frontend
 npm run dev
 
-# Story book
+# Storybook
 
-npm run storybook
+npm run storybook -- --no-open --host 0.0.0.0 -p 6006
 
-5. All pages
-   / - Home
-   /products - Store
-   /products/new - Add product
-   /products/dd34-221ew-4... - Product detail
-   /products/dd34-221ew-4.../edit - Product edit
-   /account - My profile
-   /login- Sign in
-   /registration - Sign up
-   /forgot-password - Forgot password
-   /reset-password?token=eyJhbGci... - Reset password
+## 📄 All pages
 
-//TODO: What about docker or deploy the project?
+/ - Home
+/products - Store
+/products/new - Add product
+/products/dd34-221ew-4... - Product detail
+/products/dd34-221ew-4.../edit - Product edit
+/account - My profile
+/login- Sign in
+/registration - Sign up
+/forgot-password - Forgot password
+/reset-password?token=eyJhbGci... - Reset password

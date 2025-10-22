@@ -1,0 +1,76 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: tstore_db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-t-store}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-0000}
+    ports:
+      - "5432:5432"
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-t-store}",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+
+  backend:
+    image: node:20-alpine
+    container_name: tstore_backend
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    env_file:
+      - ./backend/.env
+    environment:
+      NODE_ENV: development
+      PORT: "3000"
+      DB_HOST: db
+      DB_PORT: "5432"
+      FRONTEND_URL: "http://localhost:5173"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: sh -c "npm ci && npm run db:migrate && npm run dev"
+    ports:
+      - "3000:3000"
+
+  frontend:
+    image: node:20-alpine
+    container_name: tstore_frontend
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      VITE_API_URL: "http://localhost:3000"
+    command: sh -c "npm ci && npm run dev -- --host 0.0.0.0"
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+  storybook:
+    image: node:20-alpine
+    working_dir: /app
+    container_name: tstore_storybook
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      STORYBOOK_DISABLE_TELEMETRY: "1"
+    command: sh -c "npm ci && npm run storybook -- --no-open --host 0.0.0.0 -p 6006"
+    ports:
+      - "6006:6006"
+
+volumes:
+  dbdata:
