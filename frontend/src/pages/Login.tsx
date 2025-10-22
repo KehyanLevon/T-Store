@@ -30,7 +30,7 @@ export default function Login() {
 
       <form onSubmit={handleSubmit}>
         <InputField
-          label="Username or Email"
+          label="Email"
           id="email"
           name="email"
           type="email"
